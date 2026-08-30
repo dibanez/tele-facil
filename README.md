@@ -15,6 +15,12 @@ Panel de botones  →  Home Assistant  →  Android TV Remote  →  Decodificado
 > **[Solo quiere ver la tele](https://dibanez.github.io/tele-facil/)** — el porqué
 > del proyecto: qué problema resuelve, qué costó y cuánto costaría añadirle voz.
 
+<p align="center">
+  <img src="docs/img/panel.jpg" width="300"
+       alt="El panel en la pantalla de un móvil: seis botones grandes numerados con los nombres de los canales y una fila de volumen con Bajar, Silencio y Subir.">
+</p>
+<p align="center"><em>Esto es todo lo que ve quien lo usa.</em></p>
+
 ## Decodificadores soportados
 
 | Decodificador | Estado |

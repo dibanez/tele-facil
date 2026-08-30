@@ -46,3 +46,7 @@ Thumbs.db
 .vscode/
 *.swp
 *~
+
+# Fotos originales de camara/movil: al repo solo va la version optimizada
+IMG_*.JPG
+IMG_*.jpg
