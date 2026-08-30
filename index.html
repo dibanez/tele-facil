@@ -236,6 +236,27 @@ code, kbd {
   font-size: .84rem; line-height: 1.55; color: var(--ink-3);
   margin-top: .9rem;
 }
+.shot {
+  display: block; max-width: 100%; max-height: 33rem; width: auto;
+  margin-inline: auto; border-radius: 16px;
+  border: 1px solid var(--rule); box-shadow: var(--shadow);
+}
+.demo { margin-top: 2.2rem; }
+.demo .device { max-width: 23rem; margin-inline: auto; }
+.demo .caption { max-width: 30rem; margin-inline: auto; text-align: center; }
+.btn .num {
+  display: grid; place-items: center;
+  width: 2.1rem; height: 2.1rem; margin: 0 auto .3rem;
+  border-radius: 50%; background: var(--accent); color: var(--paper);
+  font-size: .95rem; font-weight: 700;
+}
+:root[data-theme="dark"] .btn .num { color: #12171A; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .btn .num { color: #12171A; } }
+.hint {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .76rem; color: var(--ink-3);
+  padding-bottom: .55rem; border-bottom: 1px solid var(--rule); margin-bottom: .55rem;
+}
 
 /* ---------- cadena / diagrama ---------- */
 .chain {
@@ -351,27 +372,35 @@ footer { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--ru
       <p class="caption">Cuarenta teclas. Cuatro se usan. Ninguna dice qué hace en el idioma de quien la pulsa.</p>
     </div>
     <div>
-      <figcaption>Después — el panel</figcaption>
-      <div class="device">
-        <div class="panel">
-          <div class="grid-ch" id="canales">
-            <button class="btn" data-ch="La 1">La 1</button>
-            <button class="btn" data-ch="La 2">La 2</button>
-            <button class="btn" data-ch="Antena 3">Antena 3</button>
-            <button class="btn" data-ch="Cuatro">Cuatro</button>
-            <button class="btn" data-ch="Telecinco">Telecinco</button>
-            <button class="btn" data-ch="laSexta">laSexta</button>
-          </div>
-          <div class="grid-vol">
-            <button class="btn small" data-vol="Volumen más bajo">Bajar</button>
-            <button class="btn small" data-vol="Sonido quitado">Silencio</button>
-            <button class="btn small" data-vol="Volumen más alto">Subir</button>
-          </div>
-          <div class="status" id="estado" role="status" aria-live="polite">Pulsa un canal.</div>
-        </div>
-      </div>
-      <p class="caption">Pruébalo: es el panel real, con su espera incluida (aquí acelerada; en casa tarda entre 12 y 18 segundos).</p>
+      <figcaption>Después — el panel, en el móvil</figcaption>
+      <img class="shot" src="panel.jpg" width="735" height="1400"
+           alt="Foto del panel en la pantalla de un móvil: el título Canales, el aviso «Tarda unos 15 segundos en cambiar», seis botones grandes numerados del 1 al 6 con los nombres La 1, La 2, Antena 3, Cuatro, Telecinco y laSexta, y debajo una fila de volumen con Bajar, Silencio y Subir.">
+      <p class="caption">La pantalla real. Seis canales, tres botones de volumen y una frase que avisa de la espera. No hay nada más: ni ajustes, ni menú, ni pantalla de inicio.</p>
     </div>
+  </figure>
+
+  <figure class="wide demo">
+    <figcaption class="label">Demo · pruébalo aquí</figcaption>
+    <div class="device">
+      <div class="panel">
+        <p class="hint">Tarda unos 15 segundos en cambiar.</p>
+        <div class="grid-ch" id="canales">
+          <button class="btn" data-ch="La 1"><span class="num" aria-hidden="true">1</span>La 1</button>
+          <button class="btn" data-ch="La 2"><span class="num" aria-hidden="true">2</span>La 2</button>
+          <button class="btn" data-ch="Antena 3"><span class="num" aria-hidden="true">3</span>Antena 3</button>
+          <button class="btn" data-ch="Cuatro"><span class="num" aria-hidden="true">4</span>Cuatro</button>
+          <button class="btn" data-ch="Telecinco"><span class="num" aria-hidden="true">5</span>Telecinco</button>
+          <button class="btn" data-ch="laSexta"><span class="num" aria-hidden="true">6</span>laSexta</button>
+        </div>
+        <div class="grid-vol">
+          <button class="btn small" data-vol="Volumen más bajo">Bajar</button>
+          <button class="btn small" data-vol="Sonido quitado">Silencio</button>
+          <button class="btn small" data-vol="Volumen más alto">Subir</button>
+        </div>
+        <div class="status" id="estado" role="status" aria-live="polite">Pulsa un canal.</div>
+      </div>
+    </div>
+    <p class="caption">La espera va acelerada: en casa son entre 12 y 18 segundos, y el panel lo dice antes de que nadie se impaciente.</p>
   </figure>
 
   <h2>Qué hay detrás</h2>
