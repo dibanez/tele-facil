@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Solo quiere ver la tele</title>
+<meta name="description" content="Un mando de cuarenta botones, una persona mayor y un decodificador que ignora los números. Cómo quedó reducido a seis botones grandes.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Literata:ital,opsz,wght@0,7..72,400;0,7..72,500;1,7..72,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* ---------------------------------------------------------------
+   Tele Fácil — identidad tomada de la carta de ajuste:
+   barras de color EBU desaturadas, neutros con sesgo verde-gris.
+   --------------------------------------------------------------- */
+:root {
+  --paper:      #F1F2ED;
+  --paper-2:    #E6E8E1;
+  --paper-3:    #DBDED4;
+  --ink:        #191D1A;
+  --ink-2:      #4B5350;
+  --ink-3:      #767E79;
+  --rule:       #D0D4C9;
+  --accent:     #14646F;
+  --accent-ink: #0E4C55;
+  --warm:       #A8452F;
+  --bar-1: #C9CCC3; --bar-2: #C9B247; --bar-3: #4FA9B4; --bar-4: #4C9560;
+  --bar-5: #9C5087; --bar-6: #B44E3B; --bar-7: #3D5B99;
+  --shadow: 0 1px 2px rgba(25,29,26,.06), 0 8px 24px -12px rgba(25,29,26,.18);
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --paper:      #14181A;
+    --paper-2:    #1B2124;
+    --paper-3:    #232B2E;
+    --ink:        #E7EAE4;
+    --ink-2:      #A3ADA7;
+    --ink-3:      #7B8580;
+    --rule:       #2C3437;
+    --accent:     #6CC4CE;
+    --accent-ink: #9BDCE3;
+    --warm:       #E08972;
+    --bar-1: #8E948B; --bar-2: #A8933A; --bar-3: #3F8B95; --bar-4: #3F7B4F;
+    --bar-5: #814271; --bar-6: #97402F; --bar-7: #33497A;
+    --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+  }
+}
+:root[data-theme="dark"] {
+  --paper:      #14181A;
+  --paper-2:    #1B2124;
+  --paper-3:    #232B2E;
+  --ink:        #E7EAE4;
+  --ink-2:      #A3ADA7;
+  --ink-3:      #7B8580;
+  --rule:       #2C3437;
+  --accent:     #6CC4CE;
+  --accent-ink: #9BDCE3;
+  --warm:       #E08972;
+  --bar-1: #8E948B; --bar-2: #A8933A; --bar-3: #3F8B95; --bar-4: #3F7B4F;
+  --bar-5: #814271; --bar-6: #97402F; --bar-7: #33497A;
+  --shadow: 0 1px 2px rgba(0,0,0,.4), 0 10px 30px -14px rgba(0,0,0,.7);
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: Literata, Georgia, "Times New Roman", serif;
+  font-size: 1.0625rem;
+  line-height: 1.72;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ---------- rejilla editorial: columna de texto + salidas anchas ---------- */
+.page {
+  display: grid;
+  grid-template-columns: minmax(1.25rem, 1fr) min(40rem, 100%) minmax(1.25rem, 1fr);
+  row-gap: 1.35rem;
+  padding-bottom: 5rem;
+}
+.page > * { grid-column: 2; margin: 0; }
+.page > .wide {
+  grid-column: 1 / -1;
+  width: min(58rem, 100% - 2.5rem);
+  margin-inline: auto;
+}
+.page > .full { grid-column: 1 / -1; width: 100%; }
+
+/* ---------- tipografía ---------- */
+h1, h2, h3, .label, .btn, .stat { font-family: Archivo, "Helvetica Neue", Arial, sans-serif; }
+
+h1 {
+  font-size: clamp(2.5rem, 8vw, 4.35rem);
+  font-weight: 800;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+  text-wrap: balance;
+  margin-top: .5rem;
+}
+h2 {
+  font-size: clamp(1.45rem, 3.6vw, 1.9rem);
+  font-weight: 700;
+  line-height: 1.18;
+  letter-spacing: -0.02em;
+  text-wrap: balance;
+  margin-top: 2.6rem;
+}
+h3 {
+  font-size: 1.0625rem;
+  font-weight: 700;
+  letter-spacing: -0.005em;
+  margin-top: 1.4rem;
+}
+.label {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .7rem;
+  font-weight: 500;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.dek {
+  font-size: clamp(1.1rem, 2.6vw, 1.3rem);
+  line-height: 1.5;
+  color: var(--ink-2);
+  text-wrap: pretty;
+  max-width: 34rem;
+}
+p { text-wrap: pretty; }
+strong { font-weight: 600; color: var(--ink); }
+em { font-style: italic; }
+a { color: var(--accent-ink); text-underline-offset: .18em; text-decoration-thickness: .06em; }
+a:hover { color: var(--accent); }
+:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; border-radius: 3px; }
+code, kbd {
+  font-family: "IBM Plex Mono", ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: .88em;
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 4px;
+  padding: .08em .34em;
+}
+
+/* ---------- cabecera ---------- */
+.masthead { padding-top: clamp(2.5rem, 8vw, 4.5rem); }
+.bars { display: flex; height: 7px; margin-top: 1.9rem; }
+.bars span { flex: 1; }
+.bars span:nth-child(1) { background: var(--bar-1); }
+.bars span:nth-child(2) { background: var(--bar-2); }
+.bars span:nth-child(3) { background: var(--bar-3); }
+.bars span:nth-child(4) { background: var(--bar-4); }
+.bars span:nth-child(5) { background: var(--bar-5); }
+.bars span:nth-child(6) { background: var(--bar-6); }
+.bars span:nth-child(7) { background: var(--bar-7); }
+.byline {
+  display: flex; flex-wrap: wrap; gap: .5rem 1.1rem;
+  align-items: baseline; margin-top: 1.5rem;
+}
+
+/* ---------- antes / después ---------- */
+.compare {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+}
+.compare figcaption {
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .74rem; letter-spacing: .1em; text-transform: uppercase;
+  color: var(--ink-3); margin-bottom: .75rem;
+}
+.device {
+  background: var(--paper-2);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  padding: 1.1rem;
+  box-shadow: var(--shadow);
+}
+/* mando de 40 botones */
+.remote { max-width: 12.5rem; margin-inline: auto; }
+.remote .power {
+  width: 1.55rem; height: 1.55rem; border-radius: 50%;
+  background: var(--warm); margin: 0 auto .85rem;
+  opacity: .85;
+}
+.keys { display: grid; grid-template-columns: repeat(3, 1fr); gap: .38rem; }
+.keys i {
+  display: block; height: 1.15rem; border-radius: 4px;
+  background: var(--paper-3);
+  border: 1px solid var(--rule);
+}
+.keys i.wide2 { grid-column: span 2; }
+.keys i.dark { background: var(--ink-3); opacity: .35; }
+
+/* panel de seis botones (demo) */
+.panel { display: grid; gap: .5rem; }
+.grid-ch { display: grid; grid-template-columns: repeat(2, 1fr); gap: .5rem; }
+.grid-vol { display: grid; grid-template-columns: repeat(3, 1fr); gap: .5rem; }
+.btn {
+  font-size: 1.02rem; font-weight: 700; letter-spacing: -0.01em;
+  color: var(--ink);
+  background: var(--paper);
+  border: 1.5px solid var(--rule);
+  border-radius: 10px;
+  padding: .95rem .5rem;
+  cursor: pointer;
+  transition: transform .08s ease, border-color .12s ease, background .12s ease;
+}
+.btn:hover { border-color: var(--accent); }
+.btn:active { transform: translateY(1px); }
+.btn[aria-pressed="true"] { border-color: var(--accent); background: var(--paper-3); }
+.btn.small { font-size: .9rem; padding: .8rem .4rem; }
+.status {
+  margin-top: .35rem;
+  border-top: 1px solid var(--rule);
+  padding-top: .7rem;
+  font-family: "IBM Plex Mono", ui-monospace, monospace;
+  font-size: .8rem;
+  color: var(--ink-2);
+  min-height: 2.6rem;
+}
+.progress {
+  height: 4px; border-radius: 2px; background: var(--paper-3);
+  margin-top: .5rem; overflow: hidden;
+}
+.progress b { display: block; height: 100%; width: 0; background: var(--accent); }
+.progress.run b { animation: fill 2.4s linear forwards; }
+@keyframes fill { to { width: 100%; } }
+@media (prefers-reduced-motion: reduce) {
+  .progress.run b { animation: none; width: 100%; }
+  .btn { transition: none; }
+}
+.caption {
+  font-size: .84rem; line-height: 1.55; color: var(--ink-3);
+  margin-top: .9rem;
+}
+
+/* ---------- cadena / diagrama ---------- */
+.chain {
+  display: flex; flex-wrap: wrap; align-items: center; gap: .45rem;
+  margin-top: 1.6rem; padding: 1.25rem;
+  background: var(--paper-2); border: 1px solid var(--rule); border-radius: 12px;
+  font-family: "IBM Plex Mono", ui-monospace, monospace; font-size: .8rem;
+}
+.chain span {
+  background: var(--paper); border: 1px solid var(--rule);
+  border-radius: 7px; padding: .4rem .6rem; white-space: nowrap;
+}
+.chain span.hw { border-color: var(--accent); color: var(--accent-ink); }
+.chain b { color: var(--ink-3); font-weight: 400; }
+
+/* ---------- cita ---------- */
+blockquote {
+  margin: 2.2rem 0 .6rem;
+  padding-left: 1.15rem;
+  border-left: 3px solid var(--accent);
+  font-size: clamp(1.15rem, 2.8vw, 1.4rem);
+  line-height: 1.42;
+  letter-spacing: -0.015em;
+  color: var(--ink);
+  font-style: italic;
+}
+
+/* ---------- listas ---------- */
+ol.rules { list-style: none; padding: 0; margin-top: 1.4rem; display: grid; gap: 1.1rem; counter-reset: r; }
+ol.rules li { counter-increment: r; display: grid; grid-template-columns: 2.1rem 1fr; gap: .1rem 0; }
+ol.rules li::before {
+  content: counter(r);
+  font-family: "IBM Plex Mono", monospace; font-size: .78rem;
+  color: var(--ink-3); padding-top: .38rem;
+}
+ol.rules h3 { margin: 0; grid-column: 2; }
+ol.rules p { grid-column: 2; margin-top: .15rem; }
+ul.plain { padding-left: 1.15rem; display: grid; gap: .55rem; margin-top: 1rem; }
+
+/* ---------- caja de coste ---------- */
+.box {
+  margin-top: 1.6rem; padding: 1.25rem 1.4rem;
+  background: var(--paper-2); border: 1px solid var(--rule);
+  border-left: 3px solid var(--bar-2);
+  border-radius: 10px;
+}
+.box p + p { margin-top: .7rem; }
+.box .label { display: block; margin-bottom: .5rem; }
+
+/* ---------- estado ---------- */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(11rem, 1fr)); gap: 1px;
+  background: var(--rule); border: 1px solid var(--rule); border-radius: 10px; overflow: hidden; margin-top: 1.6rem; }
+.stats div { background: var(--paper); padding: 1rem 1.1rem; }
+.stat { display: block; font-size: 1.35rem; font-weight: 700; letter-spacing: -0.02em; margin-bottom: .1rem; }
+.stats small { font-size: .82rem; color: var(--ink-2); line-height: 1.4; display: block; font-family: Literata, Georgia, serif; }
+
+/* ---------- pie ---------- */
+footer { margin-top: 3.5rem; padding-top: 1.5rem; border-top: 1px solid var(--rule); }
+.repo {
+  display: inline-flex; align-items: center; gap: .55rem;
+  font-family: Archivo, sans-serif; font-weight: 700; font-size: 1rem;
+  text-decoration: none; color: var(--ink);
+  border: 1.5px solid var(--rule); border-radius: 9px;
+  padding: .7rem 1.05rem; margin-top: .4rem;
+}
+.repo:hover { border-color: var(--accent); color: var(--accent-ink); }
+</style>
+</head>
+<body>
+<article class="page">
+
+  <header class="masthead">
+    <p class="label">Tele Fácil · proyecto</p>
+    <h1>Solo quiere ver la tele</h1>
+  </header>
+  <p class="dek">Un mando de cuarenta botones, un decodificador que ignora los números y una persona mayor que solo quiere poner Telecinco. Esto es lo que costó reducirlo a seis botones grandes.</p>
+  <div class="full bars" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+  <p>La escena es más común de lo que parece. Alguien lleva sesenta años viendo la televisión, y de pronto ya no sabe encenderla. No porque haya perdido facultades: porque cambiaron el aparato. Donde antes había una rueda y dos botones, ahora hay un decodificador con menú, una aplicación que se actualiza sola, una rejilla de canales que se navega con flechas y un mando con cuarenta teclas, de las cuales importan cuatro.</p>
+
+  <p>Lo que pasa a continuación siempre es lo mismo. Un día se pulsa algo sin querer, la pantalla se va a un sitio desconocido y no hay forma de volver. A partir de ahí se deja de tocar el mando. Se ve lo que haya puesto. Y para cambiar de canal se espera a que venga alguien.</p>
+
+  <blockquote>El problema no es que no entienda la tecnología. Es que la tecnología no entiende para qué la quiere.</blockquote>
+
+  <p>Cambiar de canal no es una tarea que requiera aprender un sistema. Es un gesto. Y un gesto que ha dejado de funcionar es una autonomía que se pierde: pequeña, cotidiana y bastante humillante de tener que pedir.</p>
+
+  <h2>Lo que se ve al final</h2>
+  <p>La solución no tiene menús, ni ajustes, ni pantalla de inicio. Es esto: seis canales, tres botones de volumen. Un botón hace una cosa. Siempre la misma.</p>
+
+  <figure class="wide compare">
+    <div>
+      <figcaption>Antes — el mando del decodificador</figcaption>
+      <div class="device">
+        <div class="remote" aria-hidden="true">
+          <div class="power"></div>
+          <div class="keys">
+            <i></i><i></i><i></i>
+            <i class="dark"></i><i class="dark"></i><i class="dark"></i>
+            <i></i><i></i><i></i>
+            <i></i><i></i><i></i>
+            <i></i><i></i><i></i>
+            <i class="wide2"></i><i></i>
+            <i></i><i></i><i></i>
+            <i></i><i></i><i></i>
+            <i class="dark"></i><i class="dark"></i><i class="dark"></i>
+            <i></i><i></i><i></i>
+            <i></i><i></i><i></i>
+            <i class="wide2"></i><i></i>
+            <i></i><i></i><i></i>
+          </div>
+        </div>
+      </div>
+      <p class="caption">Cuarenta teclas. Cuatro se usan. Ninguna dice qué hace en el idioma de quien la pulsa.</p>
+    </div>
+    <div>
+      <figcaption>Después — el panel</figcaption>
+      <div class="device">
+        <div class="panel">
+          <div class="grid-ch" id="canales">
+            <button class="btn" data-ch="La 1">La 1</button>
+            <button class="btn" data-ch="La 2">La 2</button>
+            <button class="btn" data-ch="Antena 3">Antena 3</button>
+            <button class="btn" data-ch="Cuatro">Cuatro</button>
+            <button class="btn" data-ch="Telecinco">Telecinco</button>
+            <button class="btn" data-ch="laSexta">laSexta</button>
+          </div>
+          <div class="grid-vol">
+            <button class="btn small" data-vol="Volumen más bajo">Bajar</button>
+            <button class="btn small" data-vol="Sonido quitado">Silencio</button>
+            <button class="btn small" data-vol="Volumen más alto">Subir</button>
+          </div>
+          <div class="status" id="estado" role="status" aria-live="polite">Pulsa un canal.</div>
+        </div>
+      </div>
+      <p class="caption">Pruébalo: es el panel real, con su espera incluida (aquí acelerada; en casa tarda entre 12 y 18 segundos).</p>
+    </div>
+  </figure>
+
+  <h2>Qué hay detrás</h2>
+  <p>Una Raspberry Pi con <strong>Home Assistant</strong>, conectada a la misma red que el decodificador. Home Assistant habla con el deco por el mismo protocolo que usa el mando de Google TV: se empareja una vez con un código en pantalla, sobrevive a los reinicios y reconecta solo. El panel es una pantalla de Home Assistant con los botones a tamaño de dedo.</p>
+
+  <div class="wide chain" role="img" aria-label="Cadena: el panel de botones habla con Home Assistant, que habla con el decodificador por Android TV Remote, y el decodificador con la tele.">
+    <span>Panel de botones</span><b>→</b>
+    <span>Home Assistant</span><b>→</b>
+    <span>Android TV Remote</span><b>→</b>
+    <span class="hw">Decodificador</span><b>→</b>
+    <span class="hw">TV</span>
+  </div>
+
+  <p>Se descartó el camino aparentemente más directo, ADB, como vía principal: exige activar la depuración por red en el decodificador y <strong>eso se desactiva solo al reiniciar</strong> en muchos Android TV. Para un sistema que vive en casa ajena y no puedes atender a diario, esa diferencia lo es todo.</p>
+
+  <h2>Y entonces el decodificador ignoró los números</h2>
+  <p>El plan era obvio: el mando tiene teclado numérico, así que para poner Telecinco se manda un <code>5</code>. Es falso. En este decodificador —un DIGI R2A— los dígitos van al firmware del aparato, no a la aplicación que corre encima y que es la que realmente pinta la televisión en directo. Marcar un número no hace absolutamente nada. Tampoco responden las teclas de canal arriba y abajo. Ni las flechas.</p>
+
+  <p>La única vía que funciona es la que usaría una persona: abrir la rejilla de canales y navegar hasta el que quieres. Lo cual plantea el problema de fondo de todo esto: <strong>para contar posiciones hay que saber desde dónde cuentas</strong>, y la televisión puede estar en cualquier sitio —en la guía, en un menú, en la ficha de un programa, en Netflix.</p>
+
+  <p>La pieza que lo resolvió es un enlace interno de la aplicación, <code>digitv://channel</code>, que abre la rejilla dejando el foco <em>siempre</em> en la primera posición, esté el aparato donde esté. Eso convierte cada orden en absoluta en vez de relativa: no importa lo que hubiera antes, ni si la orden anterior se quedó a medias.</p>
+
+  <blockquote>No preguntes dónde estás. Ve a un sitio que conozcas y cuenta desde ahí.</blockquote>
+
+  <p>Con el punto fijo encontrado, el resto fue medir contra el aparato real. Dos trampas costaron una tarde cada una:</p>
+
+  <ul class="plain">
+    <li>En la ficha del programa, el botón <em>Ver ahora</em> <strong>ya viene enfocado</strong>. Mandar una flecha abajo antes de aceptar —que parecía lo lógico— movía el foco a la fila de <em>Similares</em>. El síntoma: pedías Telecinco y salía <em>Top Gear</em>.</li>
+    <li>El comando que lanza el enlace <strong>se corta a los nueve segundos</strong> y aun así devuelve éxito. El fallo era silencioso: parecía funcionar y se comía los últimos pasos. La solución fue sacar todas las esperas fuera del comando.</li>
+  </ul>
+
+  <h2>Cinco decisiones que importan más que el código</h2>
+  <p>Lo que hace que esto se pueda dejar en una casa y funcionar sin ti no es el YAML. Es esto:</p>
+
+  <ol class="rules">
+    <li>
+      <h3>Un punto fijo, no un estado</h3>
+      <p>El sistema no recuerda en qué canal está ni se fía de dónde quedó la interfaz. Cada orden empieza llevando la televisión a un sitio conocido. Un sistema que se autocorrige en cada uso no acumula errores.</p>
+    </li>
+    <li>
+      <h3>El doble toque no puede romper nada</h3>
+      <p>En una pantalla táctil es facilísimo pulsar dos canales seguidos. Si las órdenes se encolaran, la segunda esperaría veinte segundos mientras la tele pasa por un canal que nadie pidió. La orden nueva cancela la anterior, y como toda secuencia empieza desde el punto fijo, cortar a medias no deja nada roto.</p>
+    </li>
+    <li>
+      <h3>Si algo se cae, que se levante solo</h3>
+      <p>El deco se reinicia, el wifi parpadea, la conexión se pierde. Antes de rendirse, el sistema recarga la integración y espera a que vuelva. Nadie en esa casa va a mirar un registro de errores.</p>
+    </li>
+    <li>
+      <h3>La espera se dice, no se disimula</h3>
+      <p>Cambiar de canal tarda entre doce y dieciocho segundos, porque hay que navegar la rejilla y no hay atajo. Un panel que no avisa provoca que se pulse tres veces más. Uno que dice <em>«tarda unos quince segundos»</em> convierte el defecto en algo tolerable.</p>
+    </li>
+    <li>
+      <h3>Nunca nombres la máquina</h3>
+      <p>Ni Home Assistant, ni Raspberry, ni integraciones, ni números de canal. Para quien lo usa esto no es un sistema domótico: es la tele. Todo el vocabulario visible tiene que ser el suyo.</p>
+    </li>
+  </ol>
+
+  <h2>¿Y hablarle? Alexa</h2>
+  <p>La voz es el siguiente paso natural, y para este caso puede ser mejor que el panel: no hay que encontrar la tablet, ni verla bien, ni acertar con el dedo. <em>«Pon Telecinco»</em> es exactamente el gesto que se perdió.</p>
+
+  <p>Técnicamente el trabajo ya está hecho: cada botón del panel es una acción con nombre, y exponer acciones a Alexa es un problema resuelto. Hay dos caminos, y conviene saber lo que cuesta cada uno antes de elegir.</p>
+
+  <div class="box">
+    <span class="label">Camino gratuito</span>
+    <p><strong>Emular un puente Philips Hue.</strong> Home Assistant puede fingir ser un puente de bombillas, y Alexa descubre entonces cada canal como si fuera una luz: <em>«Alexa, enciende TV Telecinco»</em>. No cuesta nada y no sale de casa. El obstáculo es prosaico: los Echo solo buscan puentes Hue en el puerto 80, que en una instalación estándar de Home Assistant ya está ocupado por el propio sistema, que además revierte el cambio en cada arranque. Es la parte que sigue sin resolverse aquí.</p>
+  </div>
+
+  <div class="box">
+    <span class="label">Camino de pago</span>
+    <p><strong>Home Assistant Cloud (Nabu Casa).</strong> La integración oficial con Alexa. Funciona sin trucos, la mantiene el mismo equipo que desarrolla Home Assistant y de paso resuelve el acceso remoto para dar soporte sin abrir puertos en el router.</p>
+    <p>A cambio, es una <strong>suscripción mensual</strong> —del orden de seis o siete euros al mes, según <a href="https://www.nabucasa.com/pricing/" rel="noopener">su web</a>—, no un pago único. Para un montaje doméstico que va a durar años, esa cuota es la decisión de verdad del proyecto: no es cara, pero es para siempre.</p>
+  </div>
+
+  <p>Y hay un detalle que descoloca a todo el mundo la primera vez: <strong>los comandos nativos de Alexa siempre ganan</strong>. <em>«Alexa, sube el volumen»</em> nunca llegará a la televisión; el Echo se lo aplica a sí mismo. Hay que decir <em>«sube la tele»</em>. Toda la lista de frases hay que escribirla esquivando lo que Alexa ya cree saber, y escribirla además tal y como la persona lo diría de verdad, no como te parece lógico a ti. Si dice <em>«ponme el Telecinco»</em>, la frase es esa, con artículo.</p>
+
+  <p>Dicho lo cual, la voz no gana siempre. El ruido de la propia televisión, un audífono, una manera de hablar que el reconocimiento no espera: cualquiera de esas cosas convierte la voz en un juego de azar. Seis botones grandes no fallan nunca. Lo razonable es tener las dos cosas, y que la voz sea un extra, no el único camino.</p>
+
+  <h2>Dónde está esto ahora</h2>
+
+  <div class="wide stats">
+    <div><span class="stat">6 canales</span><small>Verificados uno a uno contra el aparato real, leyendo el nombre en pantalla</small></div>
+    <div><span class="stat">12-18 s</span><small>Lo que tarda un cambio de canal. El volumen es instantáneo</small></div>
+    <div><span class="stat">1 modelo</span><small>DIGI R2A. Añadir otros es la siguiente tarea</small></div>
+    <div><span class="stat">0 €/mes</span><small>Todo local. La voz por Alexa es lo único que tendría cuota</small></div>
+  </div>
+
+  <p>El código está partido en tres capas, y esa separación es lo único que hace realista soportar más decodificadores: una capa sabe <em>cómo se alcanza el aparato</em>, otra sabe <em>cómo se llega a un canal</em> —la parte específica de cada modelo— y la tercera sabe <em>qué pide la persona</em>. Portar el proyecto a un decodificador de otro operador significa reescribir la de en medio y no tocar las otras dos.</p>
+
+  <p>Sospecho, además, que el truco de fondo se repetirá: buscar una acción que deje la interfaz siempre en el mismo sitio y contar desde ahí. Casi todas estas aplicaciones tienen una.</p>
+
+  <blockquote>La tecnología no tenía que hacer más. Tenía que pedir menos.</blockquote>
+
+  <footer>
+    <p class="label">Código, documentación y las trampas encontradas por el camino</p>
+    <a class="repo" href="https://github.com/dibanez/tele-facil" rel="noopener">github.com/dibanez/tele-facil →</a>
+    <p class="caption">Proyecto personal, sin relación con DIGI ni con ningún operador. Los nombres de operadores y canales son marcas de sus titulares.</p>
+  </footer>
+
+</article>
+
+<script>
+(function () {
+  var estado = document.getElementById("estado");
+  var canales = document.getElementById("canales");
+  var timer = null;
+  var reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+  function limpiaSeleccion() {
+    canales.querySelectorAll(".btn").forEach(function (b) { b.removeAttribute("aria-pressed"); });
+  }
+
+  function pon(canal, boton) {
+    clearTimeout(timer);
+    limpiaSeleccion();
+    boton.setAttribute("aria-pressed", "true");
+    estado.innerHTML = "Poniendo " + canal + "…<div class=\"progress run\"><b></b></div>";
+    timer = setTimeout(function () {
+      estado.textContent = "Ahora: " + canal;
+    }, reduce ? 200 : 2400);
+  }
+
+  document.querySelectorAll("[data-ch]").forEach(function (b) {
+    b.addEventListener("click", function () { pon(b.dataset.ch, b); });
+  });
+
+  document.querySelectorAll("[data-vol]").forEach(function (b) {
+    b.addEventListener("click", function () {
+      clearTimeout(timer);
+      estado.textContent = b.dataset.vol;
+    });
+  });
+})();
+</script>
+</body>
+</html>
