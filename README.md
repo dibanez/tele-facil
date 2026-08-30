@@ -7,13 +7,13 @@ canales, volumen y poco más. Corre sobre **Home Assistant** en una Raspberry Pi
 Nació para que una persona mayor pudiera ver la tele sin pelearse con un mando
 de cuarenta botones. Quien lo usa no tiene por qué saber que detrás hay nada.
 
+📺 **[Léelo aquí: «Solo quiere ver la tele»](https://dibanez.github.io/tele-facil/)** —
+qué problema resuelve, qué costó construirlo y cuánto costaría añadirle voz.
+
 ```
 Panel de botones  →  Home Assistant  →  Android TV Remote  →  Decodificador  →  TV
                                      └→  ADB (para lo que el mando no cubre)
 ```
-
-> **[Solo quiere ver la tele](https://dibanez.github.io/tele-facil/)** — el porqué
-> del proyecto: qué problema resuelve, qué costó y cuánto costaría añadirle voz.
 
 <p align="center">
   <img src="docs/img/panel.jpg" width="300"
@@ -199,6 +199,7 @@ El detalle, los fallos habituales y el mantenimiento periódico están en
 
 | Documento | Contenido |
 |---|---|
+| [Solo quiere ver la tele](https://dibanez.github.io/tele-facil/) | El post del proyecto: el problema de fondo, las decisiones de diseño y las dos vías para añadir voz |
 | [docs/01-despliegue.md](docs/01-despliegue.md) | Instalación por fases, con verificación en cada una |
 | [docs/03-mantenimiento.md](docs/03-mantenimiento.md) | Diagnóstico de fallos y mantenimiento |
 | [docs/04-tailscale.md](docs/04-tailscale.md) | Acceso remoto para dar soporte sin abrir puertos |
