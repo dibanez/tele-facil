@@ -10,9 +10,8 @@ It was built so that an elderly person could watch TV without fighting a
 forty-button remote. Whoever uses it never needs to know there is anything
 behind it.
 
-📺 **[Read the write-up: "Solo quiere ver la tele"](https://dibanez.github.io/tele-facil/)** —
+📺 **[Read the write-up: "They just want to watch TV"](https://dibanez.github.io/tele-facil/en/)** —
 the problem it solves, what it took to build, and what adding voice would cost.
-*(In Spanish.)*
 
 ```
 Button panel  →  Home Assistant  →  Android TV Remote  →  Set-top box  →  TV
@@ -208,7 +207,7 @@ Common failures and routine maintenance are covered in
 
 | Document | Contents |
 |---|---|
-| [Solo quiere ver la tele](https://dibanez.github.io/tele-facil/) | The project write-up: the underlying problem, the design decisions, and the two routes to voice control |
+| [They just want to watch TV](https://dibanez.github.io/tele-facil/en/) | The project write-up: the underlying problem, the design decisions, and the two routes to voice control |
 | [docs/01-despliegue.md](docs/01-despliegue.md) | Phase-by-phase installation, with a check at each step |
 | [docs/03-mantenimiento.md](docs/03-mantenimiento.md) | Troubleshooting and maintenance |
 | [docs/04-tailscale.md](docs/04-tailscale.md) | Remote access for support without opening router ports |

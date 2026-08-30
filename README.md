@@ -11,6 +11,7 @@ de cuarenta botones. Quien lo usa no tiene por qué saber que detrás hay nada.
 
 📺 **[Léelo aquí: «Solo quiere ver la tele»](https://dibanez.github.io/tele-facil/)** —
 qué problema resuelve, qué costó construirlo y cuánto costaría añadirle voz.
+(También [en inglés](https://dibanez.github.io/tele-facil/en/).)
 
 ```
 Panel de botones  →  Home Assistant  →  Android TV Remote  →  Decodificador  →  TV
