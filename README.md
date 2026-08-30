@@ -12,6 +12,9 @@ Panel de botones  →  Home Assistant  →  Android TV Remote  →  Decodificado
                                      └→  ADB (para lo que el mando no cubre)
 ```
 
+> **[Solo quiere ver la tele](https://dibanez.github.io/tele-facil/)** — el porqué
+> del proyecto: qué problema resuelve, qué costó y cuánto costaría añadirle voz.
+
 ## Decodificadores soportados
 
 | Decodificador | Estado |
