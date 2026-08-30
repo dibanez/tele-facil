@@ -76,7 +76,7 @@ body {
 /* ---------- rejilla editorial: columna de texto + salidas anchas ---------- */
 .page {
   display: grid;
-  grid-template-columns: minmax(1.25rem, 1fr) min(40rem, 100%) minmax(1.25rem, 1fr);
+  grid-template-columns: minmax(1.25rem, 1fr) min(40rem, 100% - 2.5rem) minmax(1.25rem, 1fr);
   row-gap: 1.35rem;
   padding-bottom: 5rem;
 }
@@ -179,6 +179,7 @@ code, kbd {
   box-shadow: var(--shadow);
 }
 /* mando de 40 botones */
+.compare .device.remote-card { max-width: 16.5rem; margin-inline: auto; }
 .remote { max-width: 12.5rem; margin-inline: auto; }
 .remote .power {
   width: 1.55rem; height: 1.55rem; border-radius: 50%;
