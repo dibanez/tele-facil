@@ -1,0 +1,322 @@
+# ---------------------------------------------------------------------------
+# DIGI TV voice control package
+# ---------------------------------------------------------------------------
+# Drop this file in <config>/packages/digi_tv.yaml and enable packages in
+# configuration.yaml (see configuration.snippet.yaml).
+#
+# COMPATIBILITY: this file uses the `action:` syntax, which needs Home
+# Assistant 2024.8 or newer. On an older core, replace every `action:` with
+# `service:` -- the rest of the file is unchanged. Check your version under
+# Settings -> About.
+#
+# Design note: every hardware interaction funnels through `digi_send_key`.
+# That is the ONLY script that knows how the set-top box is reached. Switching
+# from Android TV Remote to ADB later means editing that one script and
+# nothing else.
+#
+# ---------------------------------------------------------------------------
+# CHANNEL NUMBERS -- VERIFY THESE ON THE ACTUAL BOX BEFORE RELYING ON THEM
+# ---------------------------------------------------------------------------
+# The values below follow the usual Spanish DTT ordering, but DIGI may renumber
+# channels and the user may have reordered favourites. Check each one with the
+# remote and edit the `number:` field of the matching script further down.
+#
+#   La 1        -> 1        Cuatro      -> 4
+#   La 2        -> 2        Telecinco   -> 5
+#   Antena 3    -> 3        laSexta     -> 6
+# ---------------------------------------------------------------------------
+
+script:
+
+  # =========================================================================
+  # LAYER 1 -- the only script that talks to the hardware
+  # =========================================================================
+  digi_send_key:
+    alias: "DIGI: send key"
+    icon: mdi:remote-tv
+    # `queued` keeps concurrent voice commands from interleaving keypresses,
+    # which would otherwise corrupt multi-digit channel entry.
+    mode: queued
+    max: 25
+    fields:
+      key:
+        description: "Android keycode, e.g. KEYCODE_CHANNEL_UP"
+        required: true
+        example: KEYCODE_CHANNEL_UP
+        selector:
+          text:
+      repeats:
+        description: "How many times to press the key"
+        default: 1
+        selector:
+          number:
+            min: 1
+            max: 20
+      gap:
+        description: "Seconds between repeated presses"
+        default: 0.15
+        selector:
+          number:
+            min: 0.05
+            max: 2
+            step: 0.05
+    sequence:
+      - variables:
+          # CAMBIAR si la integracion Android TV Remote crea otro id. Es el
+          # UNICO sitio del proyecto donde se nombra el mando.
+          target_remote: remote.digi_r2a
+          dead_states:
+            - unavailable
+            - unknown
+          # `fields:` solo describe la interfaz de llamada: sus `default:` NO se
+          # inyectan como variables. Sin estas dos lineas, cualquier llamada que
+          # omita repeats/gap deja el template con una variable indefinida y el
+          # script falla con error 500. Verificado contra el deco el 2026-08-19.
+          n_repeats: "{{ repeats | default(1) | int(1) }}"
+          s_gap: "{{ gap | default(0.15) | float(0.15) }}"
+
+      # Self-healing: if the integration dropped the connection (box rebooted,
+      # WiFi blipped), reload the config entry and wait for it to come back
+      # instead of failing the command outright.
+      - if:
+          - condition: template
+            value_template: "{{ states(target_remote) in dead_states }}"
+        then:
+          - action: homeassistant.reload_config_entry
+            target:
+              entity_id: "{{ target_remote }}"
+          - wait_template: "{{ states(target_remote) not in dead_states }}"
+            timeout: "00:00:25"
+            continue_on_timeout: true
+          - condition: template
+            value_template: "{{ states(target_remote) not in dead_states }}"
+
+      - action: remote.send_command
+        target:
+          entity_id: "{{ target_remote }}"
+        data:
+          command: "{{ key }}"
+          num_repeats: "{{ n_repeats }}"
+          delay_secs: "{{ s_gap }}"
+
+  # =========================================================================
+  # LAYER 2 -- ir a un canal concreto (via ADB)
+  # =========================================================================
+  # Sustituye al antiguo `digi_tune`, que tecleaba digitos. Verificado el
+  # 2026-08-19: el R2A NO acepta entrada numerica, ni CHANNEL_UP/DOWN, ni las
+  # flechas en la pantalla de directo. La unica via que funciona es la rejilla
+  # de Canales de la app.
+  #
+  # Por que esto es fiable: el enlace `digitv://channel` lleva la app a la
+  # rejilla con el foco SIEMPRE en La 1, este donde este (guia abierta, ficha,
+  # ajustes). Es un punto de partida fijo, asi que contar posiciones desde ahi
+  # es absoluto, no relativo, y se autocorrige en cada orden.
+  #
+  # IMPORTANTE: `androidtv.adb_command` CORTA cualquier comando que pase de
+  # ~9 s. Devuelve HTTP 200 igualmente y deja la respuesta anterior, asi que el
+  # fallo es silencioso. Por eso cada llamada aqui es una sola tecla (~0,3 s) y
+  # todas las esperas viven en `delay:` de Home Assistant. No metas `sleep`
+  # dentro del comando: parecera funcionar y se comera los ultimos pasos.
+  #
+  # Secuencia: enlace -> N derechas -> OK (abre ficha) -> ABAJO (enfoca
+  # "Ver ahora", que no tiene foco por defecto) -> OK (reproduce).
+  digi_canal:
+    alias: "DIGI: ir a canal por posicion"
+    icon: mdi:television-guide
+    # `restart`, no `queued`: en un panel tactil es facil pulsar dos canales
+    # seguidos. Con cola, el segundo espera ~20 s a que acabe el primero y la
+    # tele pasa por un canal que nadie pidio. Con restart, la pulsacion nueva
+    # cancela la anterior; y como toda secuencia empieza por el enlace, que
+    # devuelve la app a un punto conocido, cortar a medias no deja nada roto.
+    mode: restart
+    fields:
+      posicion:
+        description: "Posicion en la fila Generalista de la rejilla (1 = La 1)"
+        required: true
+        example: "5"
+        selector:
+          number:
+            min: 1
+            max: 40
+    sequence:
+      - variables:
+          # Entidad de la integracion Android Debug Bridge. Solo se usa para el
+          # enlace: es la unica cosa que el mando de Google TV no sabe hacer.
+          # CAMBIAR: Home Assistant nombra esta entidad con la IP del deco, asi
+          # que el id real sera media_player.android_tv_<ip_con_guiones_bajos>.
+          target_adb: media_player.android_tv_192_168_1_20
+          saltos: "{{ (posicion | int(1)) - 1 }}"
+
+      # 1) Punto de partida fijo: rejilla de Canales, foco en La 1.
+      #    Funciona desde cualquier pantalla, y por eso cada orden se
+      #    autocorrige en vez de depender de donde estuviera el deco.
+      - action: androidtv.adb_command
+        target:
+          entity_id: "{{ target_adb }}"
+        data:
+          command: "am start -a android.intent.action.VIEW -d 'digitv://channel' ro.digionline.tv"
+      # La app tarda en montar la rejilla. Con menos de 6 s las primeras
+      # pulsaciones se pierden y la cuenta se descoloca. Verificado con los
+      # seis canales el 2026-08-19.
+      - delay:
+          seconds: 6
+
+      # 2) Avanzar hasta la posicion pedida, por el mando (0,45 s por tecla
+      #    frente a 2,5-6,7 s por ADB con el deco reproduciendo).
+      - repeat:
+          count: "{{ saltos | int(0) }}"
+          sequence:
+            - action: script.digi_send_key
+              data:
+                key: KEYCODE_DPAD_RIGHT
+            - delay:
+                milliseconds: 800
+
+      # 3) OK abre la ficha del programa. Todavia no reproduce.
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_CENTER
+      # La ficha tarda en pintar y en tomar el foco.
+      - delay:
+          seconds: 5
+
+      # 4) "Ver ahora" YA viene enfocado en la ficha. NO mandes ABAJO aqui:
+      #    mueve el foco a la fila "Similares" y el OK abre un programa
+      #    cualquiera de esa fila en vez de reproducir el canal. Fue el fallo
+      #    que hacia salir Top Gear al pedir Telecinco (2026-08-19).
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_CENTER
+
+  # =========================================================================
+  # LAYER 3a -- navigation and volume actions
+  # =========================================================================
+  digi_siguiente:
+    alias: "TV canal siguiente"
+    icon: mdi:chevron-up-box
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_CHANNEL_UP
+
+  digi_anterior:
+    alias: "TV canal anterior"
+    icon: mdi:chevron-down-box
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_CHANNEL_DOWN
+
+  digi_volumen_mas:
+    alias: "TV subir volumen"
+    icon: mdi:volume-plus
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_VOLUME_UP
+          # Three steps is a noticeable but not startling jump for one command.
+          repeats: 3
+          gap: 0.15
+
+  digi_volumen_menos:
+    alias: "TV bajar volumen"
+    icon: mdi:volume-minus
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_VOLUME_DOWN
+          repeats: 3
+          gap: 0.15
+
+  digi_silencio:
+    alias: "TV silenciar"
+    icon: mdi:volume-off
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_MUTE
+
+  digi_atras:
+    alias: "TV volver atras"
+    icon: mdi:arrow-left
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_BACK
+
+  digi_guia:
+    alias: "TV abrir guia"
+    icon: mdi:television-guide
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_GUIDE
+
+  digi_inicio:
+    alias: "TV pantalla de inicio"
+    icon: mdi:home
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_HOME
+
+  digi_ok:
+    alias: "TV aceptar"
+    icon: mdi:check
+    sequence:
+      - action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_CENTER
+
+  # =========================================================================
+  # LAYER 3b -- one script per channel (these are what Alexa will see)
+  # =========================================================================
+  # To fix a wrong channel, edit ONLY the `number:` value in its script.
+
+  digi_la1:
+    alias: "TV La 1"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 1
+
+  digi_la2:
+    alias: "TV La 2"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 2
+
+  digi_antena3:
+    alias: "TV Antena 3"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 3
+
+  digi_cuatro:
+    alias: "TV Cuatro"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 4
+
+  digi_telecinco:
+    alias: "TV Telecinco"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 5
+
+  digi_lasexta:
+    alias: "TV laSexta"
+    icon: mdi:television-classic
+    sequence:
+      - action: script.digi_canal
+        data:
+          posicion: 6

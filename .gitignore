@@ -1,0 +1,48 @@
+# ---------------------------------------------------------------------------
+# Nada de lo que hay aqui debe llegar a GitHub.
+# ---------------------------------------------------------------------------
+
+# Secretos de Home Assistant y credenciales en general
+secrets.yaml
+.env
+*.env
+known_devices.yaml
+ip_bans.yaml
+*.key
+*.pem
+*.crt
+*.p12
+credentials*
+auth_provider*
+*token*
+!*/tools/*token*
+
+# Estado y datos de una instalacion real de Home Assistant
+.storage/
+.cloud/
+home-assistant_v2.db*
+home-assistant.log*
+*.db
+*.db-shm
+*.db-wal
+tts/
+backups/
+*.tar
+
+# Configuracion local del deco / de la casa (copias con IPs reales)
+*.local.yaml
+*local.secret*
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+
+# Sistema y editores
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+*~

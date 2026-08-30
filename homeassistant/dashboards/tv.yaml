@@ -1,0 +1,214 @@
+title: Mando TV
+views:
+- title: TV
+  path: tv
+  icon: mdi:television-classic
+  cards:
+  - type: markdown
+    content: '## Canales
+
+      Tarda unos 15 segundos en cambiar.
+
+
+      La 1 es la desconexion de Galicia.'
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+    - type: button
+      name: La 1
+      icon: mdi:numeric-1-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_la1
+    - type: button
+      name: La 2
+      icon: mdi:numeric-2-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_la2
+    - type: button
+      name: Antena 3
+      icon: mdi:numeric-3-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_antena3
+    - type: button
+      name: Cuatro
+      icon: mdi:numeric-4-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_cuatro
+    - type: button
+      name: Telecinco
+      icon: mdi:numeric-5-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_telecinco
+    - type: button
+      name: laSexta
+      icon: mdi:numeric-6-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_lasexta
+  - type: markdown
+    content: '## Mando de flechas
+
+      Fiable e instantaneo. Pulsa **Guia** o **Canales** y muevete con las flechas.'
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+    - &id001
+      type: button
+      name: ' '
+      icon: mdi:blank
+      tap_action:
+        action: none
+    - type: button
+      name: Arriba
+      icon: mdi:chevron-up
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_UP
+    - *id001
+    - type: button
+      name: Izq
+      icon: mdi:chevron-left
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_LEFT
+    - type: button
+      name: OK
+      icon: mdi:circle-slice-8
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_CENTER
+    - type: button
+      name: Der
+      icon: mdi:chevron-right
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_RIGHT
+    - *id001
+    - type: button
+      name: Abajo
+      icon: mdi:chevron-down
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_send_key
+        data:
+          key: KEYCODE_DPAD_DOWN
+    - *id001
+  - type: grid
+    columns: 2
+    square: false
+    cards:
+    - type: button
+      name: Canales
+      icon: mdi:view-grid
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: androidtv.adb_command
+        target:
+          entity_id: media_player.android_tv_192_168_1_20
+        data:
+          command: am start -a android.intent.action.VIEW -d 'digitv://channel' ro.digionline.tv
+    - type: button
+      name: Guia
+      icon: mdi:television-guide
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_guia
+  - type: markdown
+    content: '## Volumen'
+  - type: grid
+    columns: 3
+    square: false
+    cards:
+    - type: button
+      name: Bajar
+      icon: mdi:volume-minus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_volumen_menos
+    - type: button
+      name: Silencio
+      icon: mdi:volume-off
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_silencio
+    - type: button
+      name: Subir
+      icon: mdi:volume-plus
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_volumen_mas
+  - type: entities
+    title: Estado del decodificador
+    state_color: true
+    entities:
+    - entity: media_player.digi_r2a
+      name: Deco
+    - entity: remote.digi_r2a
+      name: Mando (Android TV Remote)
+    - entity: media_player.android_tv_192_168_1_20
+      name: Conexion ADB
+  - type: markdown
+    content: '## Navegacion'
+  - type: grid
+    columns: 4
+    square: false
+    cards:
+    - type: button
+      name: Guia
+      icon: mdi:television-guide
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_guia
+    - type: button
+      name: Atras
+      icon: mdi:arrow-left
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_atras
+    - type: button
+      name: OK
+      icon: mdi:check-circle
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_ok
+    - type: button
+      name: Inicio
+      icon: mdi:home
+      show_state: false
+      tap_action:
+        action: perform-action
+        perform_action: script.digi_inicio

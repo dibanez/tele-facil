@@ -1,0 +1,84 @@
+# ---------------------------------------------------------------------------
+# Add these blocks to <config>/configuration.yaml
+# ---------------------------------------------------------------------------
+
+homeassistant:
+  packages: !include_dir_named packages
+
+# ---------------------------------------------------------------------------
+# Move the UI off port 80 so emulated_hue can claim it.
+# ---------------------------------------------------------------------------
+# Echo 2nd gen and later only discover Hue bridges on port 80, so the bridge
+# emulation must own it. After applying this, Home Assistant is reached at
+# http://<pi-ip>:8123/ -- update bookmarks and the companion app.
+http:
+  server_port: 8123
+
+# ---------------------------------------------------------------------------
+# Hue bridge emulation: this is what Alexa discovers
+# ---------------------------------------------------------------------------
+emulated_hue:
+  listen_port: 80
+  # Pin these to the Raspberry's LAN address at the destination house.
+  # Leaving them unset makes discovery unreliable on multi-interface hosts.
+  host_ip: 192.168.1.10       # CAMBIAR: IP fija (reserva DHCP) de la Raspberry
+  advertise_ip: 192.168.1.10  # CAMBIAR: la misma IP que host_ip
+  # Running a script maps both "turn on" and "turn off" to execution, so Alexa
+  # never reports a failure just because the script already returned to off.
+  # This is the default, stated here so it is not lost in a future edit.
+  off_maps_to_on_domains:
+    - script
+    - scene
+  expose_by_default: false
+  exposed_domains:
+    - script
+  entities:
+
+    # ---- channels ----
+    script.digi_la1:
+      name: "TV La Uno"
+      hidden: false
+    script.digi_la2:
+      name: "TV La Dos"
+      hidden: false
+    script.digi_antena3:
+      name: "TV Antena Tres"
+      hidden: false
+    script.digi_cuatro:
+      name: "TV Cuatro"
+      hidden: false
+    script.digi_telecinco:
+      name: "TV Telecinco"
+      hidden: false
+    script.digi_lasexta:
+      name: "TV La Sexta"
+      hidden: false
+
+    # ---- navigation ----
+    script.digi_siguiente:
+      name: "TV Canal Siguiente"
+      hidden: false
+    script.digi_anterior:
+      name: "TV Canal Anterior"
+      hidden: false
+    script.digi_volumen_mas:
+      name: "TV Subir Volumen"
+      hidden: false
+    script.digi_volumen_menos:
+      name: "TV Bajar Volumen"
+      hidden: false
+    script.digi_silencio:
+      name: "TV Silencio"
+      hidden: false
+    script.digi_atras:
+      name: "TV Atras"
+      hidden: false
+    script.digi_guia:
+      name: "TV Guia"
+      hidden: false
+    script.digi_inicio:
+      name: "TV Inicio"
+      hidden: false
+
+    # Deliberately NOT exposed: script.digi_send_key and script.digi_tune.
+    # Both take required parameters and are meaningless as Alexa devices.
