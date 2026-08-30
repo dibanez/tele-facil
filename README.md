@@ -1,3 +1,5 @@
+***Español** · [English](README.en.md)*
+
 # Tele Fácil
 
 Manejar la televisión desde un panel de botones grandes —en una tablet, en el
