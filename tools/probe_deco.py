@@ -6,9 +6,9 @@ Dependency-free: runs with a stock Python 3 on the Raspberry Pi or any laptop
 sitting on the same subnet as the set-top box.
 
 Usage:
-    python3 probe_digi.py                 # auto-detect subnet, full probe
-    python3 probe_digi.py --host 1.2.3.4  # probe a known address only
-    python3 probe_digi.py --timeout 10    # longer mDNS wait for slow devices
+    python3 probe_deco.py                 # auto-detect subnet, full probe
+    python3 probe_deco.py --host 1.2.3.4  # probe a known address only
+    python3 probe_deco.py --timeout 10    # longer mDNS wait for slow devices
 """
 
 import argparse

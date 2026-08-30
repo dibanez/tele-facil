@@ -23,7 +23,7 @@ Si ambas redes son `192.168.1.0/24`:
 | Llegar al decodificador o al router de la casa destino | **No.** Las rutas chocan |
 
 Para administrar Home Assistant, con lo primero basta. Pero si quieres poder
-diagnosticar el deco en remoto (por ejemplo ejecutar `probe_digi.py` contra la
+diagnosticar el deco en remoto (por ejemplo ejecutar `probe_deco.py` contra la
 red de allí), **cambia la subred de la casa destino a algo distinto**, por
 ejemplo `192.168.20.0/24`, en el router.
 

@@ -1,38 +1,49 @@
 # ---------------------------------------------------------------------------
-# DIGI TV voice control package
+# Tele Facil -- control de un decodificador de television desde Home Assistant
 # ---------------------------------------------------------------------------
-# Drop this file in <config>/packages/digi_tv.yaml and enable packages in
-# configuration.yaml (see configuration.snippet.yaml).
+# Copia este fichero en <config>/packages/tele_facil.yaml y activa `packages:`
+# en configuration.yaml (ver configuration.snippet.yaml).
 #
-# COMPATIBILITY: this file uses the `action:` syntax, which needs Home
-# Assistant 2024.8 or newer. On an older core, replace every `action:` with
-# `service:` -- the rest of the file is unchanged. Check your version under
-# Settings -> About.
-#
-# Design note: every hardware interaction funnels through `digi_send_key`.
-# That is the ONLY script that knows how the set-top box is reached. Switching
-# from Android TV Remote to ADB later means editing that one script and
-# nothing else.
+# COMPATIBILIDAD: usa la sintaxis `action:`, que necesita Home Assistant 2024.8
+# o superior. En un core anterior, sustituye cada `action:` por `service:` -- el
+# resto del fichero no cambia. Tu version esta en Ajustes -> Acerca de.
 #
 # ---------------------------------------------------------------------------
-# CHANNEL NUMBERS -- VERIFY THESE ON THE ACTUAL BOX BEFORE RELYING ON THEM
+# ESTRUCTURA EN CAPAS -- esto es lo que permite soportar otros decodificadores
 # ---------------------------------------------------------------------------
-# The values below follow the usual Spanish DTT ordering, but DIGI may renumber
-# channels and the user may have reordered favourites. Check each one with the
-# remote and edit the `number:` field of the matching script further down.
+#   Capa 1  tv_send_key   Lo unico que toca el hardware. Cambiar de Android TV
+#                         Remote a ADB, o a un emisor de infrarrojos, es editar
+#                         este script y nada mas.
+#   Capa 2  tv_canal      Como se llega a un canal concreto. ESPECIFICO DE CADA
+#                         DECODIFICADOR: la implementacion de aqui es la del
+#                         DIGI R2A (rejilla de la app ro.digionline.tv).
+#   Capa 3  tv_la1, tv_volumen_mas, ...   Una accion por cosa que pide el
+#                         usuario. Es lo que ven los botones del panel y lo
+#                         unico que NO deberia cambiar al cambiar de deco.
 #
-#   La 1        -> 1        Cuatro      -> 4
-#   La 2        -> 2        Telecinco   -> 5
-#   Antena 3    -> 3        laSexta     -> 6
+# Para portar el proyecto a otro decodificador, en principio solo hay que
+# reescribir la capa 2 y ajustar las posiciones de canal de la capa 3.
+#
+# ---------------------------------------------------------------------------
+# POSICIONES DE CANAL -- VERIFICALAS CONTRA EL DECO ANTES DE FIARTE
+# ---------------------------------------------------------------------------
+# Los scripts de canal de la capa 3 llaman a tv_canal con una `posicion:`, que
+# es el lugar que ocupa el canal en la rejilla, no su numero de dial. El
+# operador puede reordenarla en cualquier momento: comprueba cada canal y
+# corrige el valor `posicion:` del script afectado.
+#
+#   La 1 (Galicia) -> 1     Cuatro     -> 4
+#   La 2           -> 2     Telecinco  -> 5
+#   Antena 3       -> 3     laSexta    -> 6
 # ---------------------------------------------------------------------------
 
 script:
 
   # =========================================================================
-  # LAYER 1 -- the only script that talks to the hardware
+  # CAPA 1 -- el unico script que habla con el hardware
   # =========================================================================
-  digi_send_key:
-    alias: "DIGI: send key"
+  tv_send_key:
+    alias: "TV: enviar tecla"
     icon: mdi:remote-tv
     # `queued` keeps concurrent voice commands from interleaving keypresses,
     # which would otherwise corrupt multi-digit channel entry.
@@ -100,9 +111,9 @@ script:
           delay_secs: "{{ s_gap }}"
 
   # =========================================================================
-  # LAYER 2 -- ir a un canal concreto (via ADB)
+  # CAPA 2 -- ir a un canal concreto  [PERFIL: DIGI R2A]
   # =========================================================================
-  # Sustituye al antiguo `digi_tune`, que tecleaba digitos. Verificado el
+  # Sustituye al primer intento, que tecleaba digitos. Verificado el
   # 2026-08-19: el R2A NO acepta entrada numerica, ni CHANNEL_UP/DOWN, ni las
   # flechas en la pantalla de directo. La unica via que funciona es la rejilla
   # de Canales de la app.
@@ -120,8 +131,8 @@ script:
   #
   # Secuencia: enlace -> N derechas -> OK (abre ficha) -> ABAJO (enfoca
   # "Ver ahora", que no tiene foco por defecto) -> OK (reproduce).
-  digi_canal:
-    alias: "DIGI: ir a canal por posicion"
+  tv_canal:
+    alias: "TV: ir a canal por posicion"
     icon: mdi:television-guide
     # `restart`, no `queued`: en un panel tactil es facil pulsar dos canales
     # seguidos. Con cola, el segundo espera ~20 s a que acabe el primero y la
@@ -166,14 +177,14 @@ script:
       - repeat:
           count: "{{ saltos | int(0) }}"
           sequence:
-            - action: script.digi_send_key
+            - action: script.tv_send_key
               data:
                 key: KEYCODE_DPAD_RIGHT
             - delay:
                 milliseconds: 800
 
       # 3) OK abre la ficha del programa. Todavia no reproduce.
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_CENTER
       # La ficha tarda en pintar y en tomar el foco.
@@ -184,139 +195,139 @@ script:
       #    mueve el foco a la fila "Similares" y el OK abre un programa
       #    cualquiera de esa fila en vez de reproducir el canal. Fue el fallo
       #    que hacia salir Top Gear al pedir Telecinco (2026-08-19).
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_CENTER
 
   # =========================================================================
-  # LAYER 3a -- navigation and volume actions
+  # CAPA 3a -- navegacion y volumen
   # =========================================================================
-  digi_siguiente:
+  tv_siguiente:
     alias: "TV canal siguiente"
     icon: mdi:chevron-up-box
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_CHANNEL_UP
 
-  digi_anterior:
+  tv_anterior:
     alias: "TV canal anterior"
     icon: mdi:chevron-down-box
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_CHANNEL_DOWN
 
-  digi_volumen_mas:
+  tv_volumen_mas:
     alias: "TV subir volumen"
     icon: mdi:volume-plus
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_VOLUME_UP
           # Three steps is a noticeable but not startling jump for one command.
           repeats: 3
           gap: 0.15
 
-  digi_volumen_menos:
+  tv_volumen_menos:
     alias: "TV bajar volumen"
     icon: mdi:volume-minus
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_VOLUME_DOWN
           repeats: 3
           gap: 0.15
 
-  digi_silencio:
+  tv_silencio:
     alias: "TV silenciar"
     icon: mdi:volume-off
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_MUTE
 
-  digi_atras:
+  tv_atras:
     alias: "TV volver atras"
     icon: mdi:arrow-left
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_BACK
 
-  digi_guia:
+  tv_guia:
     alias: "TV abrir guia"
     icon: mdi:television-guide
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_GUIDE
 
-  digi_inicio:
+  tv_inicio:
     alias: "TV pantalla de inicio"
     icon: mdi:home
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_HOME
 
-  digi_ok:
+  tv_ok:
     alias: "TV aceptar"
     icon: mdi:check
     sequence:
-      - action: script.digi_send_key
+      - action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_CENTER
 
   # =========================================================================
-  # LAYER 3b -- one script per channel (these are what Alexa will see)
+  # CAPA 3b -- un script por canal (lo que ven los botones del panel)
   # =========================================================================
-  # To fix a wrong channel, edit ONLY the `number:` value in its script.
+  # Para corregir un canal, edita SOLO el valor `posicion:` de su script.
 
-  digi_la1:
+  tv_la1:
     alias: "TV La 1"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 1
 
-  digi_la2:
+  tv_la2:
     alias: "TV La 2"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 2
 
-  digi_antena3:
+  tv_antena3:
     alias: "TV Antena 3"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 3
 
-  digi_cuatro:
+  tv_cuatro:
     alias: "TV Cuatro"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 4
 
-  digi_telecinco:
+  tv_telecinco:
     alias: "TV Telecinco"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 5
 
-  digi_lasexta:
+  tv_lasexta:
     alias: "TV laSexta"
     icon: mdi:television-classic
     sequence:
-      - action: script.digi_canal
+      - action: script.tv_canal
         data:
           posicion: 6

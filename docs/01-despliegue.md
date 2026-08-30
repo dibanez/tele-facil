@@ -35,7 +35,7 @@ El sistema depende de que la Raspberry y el decodificador se vean entre sí.
 Enciende el decodificador (que se vea imagen, no en reposo) y ejecuta:
 
 ```bash
-python3 tools/probe_digi.py
+python3 tools/probe_deco.py
 ```
 
 Interpreta la salida:
@@ -58,7 +58,7 @@ Interpreta la salida:
 5. Anota el `entity_id` que se crea (normalmente `remote.<nombre_del_deco>`).
 
 > Si el `entity_id` **no** es `remote.digi_tv`, edita la línea
-> `target_remote:` en `homeassistant/packages/digi_tv.yaml`. Es el único sitio
+> `target_remote:` en `homeassistant/packages/tele_facil.yaml`. Es el único sitio
 > donde aparece.
 
 **Verificación:** la entidad `remote.*` aparece con estado `on` u `off`, nunca
@@ -76,7 +76,7 @@ activando **Depuración USB** y **Depuración por red**.
 Después, en HA añade la integración **Android Debug Bridge** apuntando a
 `<ip>:5555` y acepta el diálogo de autorización que sale en el televisor.
 
-Luego edita `script.digi_send_key` y sustituye la llamada `remote.send_command`
+Luego edita `script.tv_send_key` y sustituye la llamada `remote.send_command`
 por `androidtv.adb_command`. **Es el único cambio necesario**: todo lo demás
 del paquete funciona igual.
 
@@ -88,12 +88,12 @@ del paquete funciona igual.
 
 ## Fase 4 — Verificar las teclas
 
-Copia `homeassistant/packages/digi_tv.yaml` a `<config>/packages/` y añade a
+Copia `homeassistant/packages/tele_facil.yaml` a `<config>/packages/` y añade a
 `configuration.yaml` la línea de `packages:` (ver `configuration.snippet.yaml`).
 Reinicia Home Assistant.
 
 En **Herramientas para desarrolladores → Acciones**, ejecuta
-`script.digi_send_key` con cada tecla y anota cuál responde:
+`script.tv_send_key` con cada tecla y anota cuál responde:
 
 | Tecla | Efecto esperado | ¿Funciona? |
 |---|---|---|
@@ -123,12 +123,16 @@ el televisor. Comprueba:
 
 ---
 
-## Fase 5 — Averiguar los números reales de canal
+## Fase 5 — Averiguar la posición real de cada canal
 
-**No des por buenos los números del paquete.** Con el mando en la mano, teclea
-cada número y anota qué cadena sale realmente:
+**No des por buenas las posiciones del paquete.** Los canales no se piden por
+su número de dial, sino por el lugar que ocupan en la rejilla de la app, y el
+operador la reordena de vez en cuando.
 
-| Canal | Número real |
+Abre la rejilla en el deco (botón **Canales** del panel, o el enlace
+`digitv://channel`) y cuenta desde la izquierda, empezando en 1:
+
+| Canal | Posición real |
 |---|---|
 | La 1 | |
 | La 2 | |
@@ -137,13 +141,15 @@ cada número y anota qué cadena sale realmente:
 | Telecinco | |
 | laSexta | |
 
-Comprueba también **si hace falta pulsar OK** después de teclear el número, o
-si el deco cambia solo tras un instante. Si hace falta OK, pon `confirm: true`
-en las llamadas a `script.digi_tune`.
+> Cuidado: la posición 1 suele ser la desconexión autonómica ("La 1 Galicia"),
+> no la nacional. Y los nombres de programa **no** identifican el canal: cambian
+> con la hora. Para saber qué canal estás viendo, pulsa `ARRIBA` durante la
+> reproducción y lee la barra de información.
 
-Edita el campo `number:` de cada script de canal con los valores reales.
+Edita el valor `posicion:` de cada script de canal en
+`homeassistant/packages/tele_facil.yaml` con lo que hayas anotado.
 
-**Verificación:** ejecutar `script.digi_telecinco` desde HA cambia a Telecinco
+**Verificación:** ejecutar `script.tv_telecinco` desde HA cambia a Telecinco
 desde cualquier canal de partida.
 
 ---

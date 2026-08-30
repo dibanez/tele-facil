@@ -21,42 +21,42 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_la1
+        perform_action: script.tv_la1
     - type: button
       name: La 2
       icon: mdi:numeric-2-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_la2
+        perform_action: script.tv_la2
     - type: button
       name: Antena 3
       icon: mdi:numeric-3-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_antena3
+        perform_action: script.tv_antena3
     - type: button
       name: Cuatro
       icon: mdi:numeric-4-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_cuatro
+        perform_action: script.tv_cuatro
     - type: button
       name: Telecinco
       icon: mdi:numeric-5-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_telecinco
+        perform_action: script.tv_telecinco
     - type: button
       name: laSexta
       icon: mdi:numeric-6-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_lasexta
+        perform_action: script.tv_lasexta
   - type: markdown
     content: '## Mando de flechas
 
@@ -77,7 +77,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_send_key
+        perform_action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_UP
     - *id001
@@ -87,7 +87,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_send_key
+        perform_action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_LEFT
     - type: button
@@ -96,7 +96,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_send_key
+        perform_action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_CENTER
     - type: button
@@ -105,7 +105,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_send_key
+        perform_action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_RIGHT
     - *id001
@@ -115,7 +115,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_send_key
+        perform_action: script.tv_send_key
         data:
           key: KEYCODE_DPAD_DOWN
     - *id001
@@ -140,7 +140,7 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_guia
+        perform_action: script.tv_guia
   - type: markdown
     content: '## Volumen'
   - type: grid
@@ -153,21 +153,21 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_volumen_menos
+        perform_action: script.tv_volumen_menos
     - type: button
       name: Silencio
       icon: mdi:volume-off
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_silencio
+        perform_action: script.tv_silencio
     - type: button
       name: Subir
       icon: mdi:volume-plus
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_volumen_mas
+        perform_action: script.tv_volumen_mas
   - type: entities
     title: Estado del decodificador
     state_color: true
@@ -190,25 +190,25 @@ views:
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_guia
+        perform_action: script.tv_guia
     - type: button
       name: Atras
       icon: mdi:arrow-left
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_atras
+        perform_action: script.tv_atras
     - type: button
       name: OK
       icon: mdi:check-circle
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_ok
+        perform_action: script.tv_ok
     - type: button
       name: Inicio
       icon: mdi:home
       show_state: false
       tap_action:
         action: perform-action
-        perform_action: script.digi_inicio
+        perform_action: script.tv_inicio

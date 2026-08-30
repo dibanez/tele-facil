@@ -1,32 +1,35 @@
-# Mando accesible para el decodificador DIGI R2A
+# Tele Fácil
 
-Control del decodificador **DIGI R2A** desde Home Assistant: cambiar de canal,
-subir y bajar el volumen y navegar por la interfaz desde un panel de botones
-grandes, en una tablet o en el móvil, sin usar el mando a distancia.
+Manejar la televisión desde un panel de botones grandes —en una tablet, en el
+móvil o en cualquier pantalla— en vez de con el mando del decodificador: seis
+canales, volumen y poco más. Corre sobre **Home Assistant** en una Raspberry Pi.
 
-Nació para que una persona mayor pueda manejar la televisión sin pelearse con
-un mando de cuarenta botones. Quien lo usa solo ve una pantalla con seis
-canales y tres botones de volumen; detrás hay una Raspberry Pi con Home
-Assistant.
+Nació para que una persona mayor pudiera ver la tele sin pelearse con un mando
+de cuarenta botones. Quien lo usa no tiene por qué saber que detrás hay nada.
 
 ```
-Panel de botones  →  Home Assistant  →  Android TV Remote  →  DIGI R2A  →  TV
-                                     └→  ADB (solo el enlace a la rejilla)
+Panel de botones  →  Home Assistant  →  Android TV Remote  →  Decodificador  →  TV
+                                     └→  ADB (para lo que el mando no cubre)
 ```
 
-## Estado
+## Decodificadores soportados
 
-Verificado contra un decodificador real el 2026-08-19: volumen, silencio,
-navegación y el cambio a los seis canales generalistas funcionan de principio a
-fin. Los detalles medidos (tiempos, teclas que el deco ignora) están recogidos
-en [Cómo funciona el cambio de canal](#cómo-funciona-el-cambio-de-canal) y en
-las [limitaciones](#limitaciones-conocidas).
+| Decodificador | Estado |
+|---|---|
+| **DIGI R2A** | Verificado contra un equipo real el 2026-08-19: volumen, silencio, navegación y el cambio a los seis canales generalistas funcionan de principio a fin |
+
+Solo hay uno por ahora. El proyecto está partido en capas precisamente para que
+añadir otro no obligue a rehacerlo: ver
+[Añadir otro decodificador](#añadir-otro-decodificador). Los detalles medidos
+—tiempos, teclas que el deco ignora— están en
+[Cómo funciona el cambio de canal](#cómo-funciona-el-cambio-de-canal) y en las
+[limitaciones](#limitaciones-conocidas).
 
 ## Qué hace falta
 
 | Pieza | Notas |
 |---|---|
-| Decodificador **DIGI R2A** | Encendido y en la misma red que la Raspberry |
+| Un **decodificador soportado** | Encendido y en la misma red que la Raspberry. Hoy, el DIGI R2A |
 | **Raspberry Pi** con Home Assistant | Probado sobre HA OS; requiere **HA 2024.8 o superior** por la sintaxis `action:` |
 | Integración **Android TV Remote** | Es la vía principal: se empareja una vez con un código en pantalla y sobrevive a reinicios |
 | Integración **Android Debug Bridge** | Solo para lanzar el enlace `digitv://channel`. Es lo único que el mando de Google TV no sabe hacer |
@@ -42,7 +45,7 @@ encendido y mostrando imagen, desde la Raspberry o cualquier equipo de la misma
 red:
 
 ```bash
-python3 tools/probe_digi.py
+python3 tools/probe_deco.py
 ```
 
 No necesita dependencias: descubre por mDNS, barre la subred y dice si hay
@@ -60,7 +63,7 @@ servicios → Añadir integración*: **Android TV Remote** con la IP del deco
 **3. Copia la configuración.**
 
 ```bash
-cp homeassistant/packages/digi_tv.yaml <config>/packages/
+cp homeassistant/packages/tele_facil.yaml <config>/packages/
 ```
 
 Y añade a `configuration.yaml` la línea de `packages:` que aparece en
@@ -78,8 +81,8 @@ hay que cambiarlos por los de la instalación:
 
 | Dónde | Clave | Qué poner |
 |---|---|---|
-| `homeassistant/packages/digi_tv.yaml` | `target_remote` | El `entity_id` que crea Android TV Remote, normalmente `remote.digi_r2a` |
-| `homeassistant/packages/digi_tv.yaml` y `dashboards/tv.yaml` | `media_player.android_tv_192_168_1_20` | La entidad de ADB: Home Assistant la nombra con la IP del deco, con guiones bajos |
+| `homeassistant/packages/tele_facil.yaml` | `target_remote` | El `entity_id` que crea Android TV Remote, normalmente `remote.digi_r2a` |
+| `homeassistant/packages/tele_facil.yaml` y `dashboards/tv.yaml` | `media_player.android_tv_192_168_1_20` | La entidad de ADB: Home Assistant la nombra con la IP del deco, con guiones bajos |
 | `homeassistant/configuration.snippet.yaml` | `host_ip` / `advertise_ip` | La IP fija de la Raspberry |
 
 Todos los sitios donde aparecen están marcados con un comentario `# CAMBIAR`.
@@ -87,24 +90,22 @@ Todos los sitios donde aparecen están marcados con un comentario `# CAMBIAR`.
 ## Cómo está organizado
 
 ```
-tools/probe_digi.py                       Diagnóstico de red: encuentra el deco
+tools/probe_deco.py                       Diagnóstico de red: encuentra el deco
                                           y dice qué vía de control admite
-homeassistant/packages/digi_tv.yaml       Los scripts de control (el núcleo)
+homeassistant/packages/tele_facil.yaml    Los scripts de control (el núcleo)
 homeassistant/dashboards/tv.yaml          El panel de botones grandes
 homeassistant/configuration.snippet.yaml  Bloques para configuration.yaml
 docs/                                     Despliegue, mantenimiento, acceso remoto
 ```
 
-Los scripts están en tres capas:
+Los scripts están en tres capas, y esa separación es lo único que hace viable
+soportar más de un decodificador:
 
-- **`digi_send_key`** — el único script que toca el hardware. Manda una tecla
-  por Android TV Remote y, si la entidad está `unavailable` (el deco se
-  reinició, la WiFi parpadeó), recarga la integración y espera a que vuelva
-  antes de rendirse. Cambiar de vía de control es editar este script y nada
-  más.
-- **`digi_canal`** — lleva la interfaz del deco a un canal por su posición.
-- **`digi_la1`, `digi_telecinco`, `digi_volumen_mas`…** — una acción por cosa
-  que el usuario pide. Es lo que ven los botones del panel.
+| Capa | Script | Qué sabe |
+|---|---|---|
+| 1 | `tv_send_key` | **Cómo se alcanza el deco.** Es el único script que toca el hardware: manda una tecla por Android TV Remote y, si la entidad está `unavailable` (el deco se reinició, la WiFi parpadeó), recarga la integración y espera a que vuelva antes de rendirse. Pasar a ADB o a un emisor de infrarrojos es editar este script y nada más |
+| 2 | `tv_canal` | **Cómo se llega a un canal.** Es la parte específica del modelo: aquí está la implementación del DIGI R2A |
+| 3 | `tv_la1`, `tv_volumen_mas`… | **Qué pide el usuario.** Una acción por cosa. Es lo que ven los botones del panel, y lo único que no debería cambiar nunca |
 
 ## Cómo funciona el cambio de canal
 
@@ -141,6 +142,25 @@ seguidos, y con cola el segundo esperaría 20 s mientras la tele pasa por un
 canal que nadie pidió. Como toda secuencia empieza por el enlace, cortar a
 medias no deja nada roto.
 
+## Añadir otro decodificador
+
+La capa 3 —lo que el usuario pide— es la misma para cualquier deco: "pon
+Telecinco" significa lo mismo en un R2A que en un Movistar Plus+. Lo que cambia
+es cómo se cumple. Por eso portar el proyecto es, en principio:
+
+1. **Capa 1:** si el deco es Android TV, `tv_send_key` sirve tal cual y solo hay
+   que apuntar `target_remote` a la entidad nueva. Si no lo es (Linux
+   propietario, solo infrarrojos), se reescribe ese único script.
+2. **Capa 2:** reescribir `tv_canal`. Es el trabajo de verdad, y el que hay que
+   medir contra el aparato: qué teclas ignora, cuánto tarda en pintar cada
+   pantalla, si hay algún punto de partida fijo del que contar.
+3. **Capa 3:** ajustar las posiciones de canal, sin tocar nada más.
+
+El truco que hizo funcionar el R2A —encontrar una acción que deje la interfaz
+siempre en el mismo sitio y contar desde ahí, en vez de asumir dónde estaba— es
+probable que sirva en otros decos. La sección anterior cuenta cómo se llegó a
+él, que es lo más reaprovechable de este repositorio.
+
 ## Limitaciones conocidas
 
 - **El cambio de canal tarda 12-18 segundos.** Hay que navegar la rejilla; no
@@ -149,7 +169,7 @@ medias no deja nada roto.
 - **Los nombres de programa no identifican el canal**: cambian con la hora.
   Para verificar cuál está puesto, pulsa `ARRIBA` durante la reproducción y lee
   la barra de información.
-- **Si DIGI reordena la rejilla, hay que reajustar las posiciones.** Se edita
+- **Si el operador reordena la rejilla, hay que reajustar las posiciones.** Se edita
   el valor `posicion:` del script del canal afectado, y nada más.
 - **ADB se desactiva solo tras un reinicio en muchos Android TV.** Por eso el
   mando de Google TV es la vía principal y ADB queda reducido al enlace.
@@ -160,7 +180,7 @@ De fuera hacia dentro, cada paso descarta una capa:
 
 1. ¿Abre `http://<ip-raspberry>:8123/`? → si no, Raspberry apagada o sin red.
 2. ¿La entidad `remote.*` está `unavailable`? → deco apagado o cambió de IP.
-3. ¿`python3 tools/probe_digi.py` encuentra el deco? → si no, problema de red o
+3. ¿`python3 tools/probe_deco.py` encuentra el deco? → si no, problema de red o
    se perdió el emparejamiento.
 
 El detalle, los fallos habituales y el mantenimiento periódico están en
@@ -178,5 +198,5 @@ El detalle, los fallos habituales y el mantenimiento periódico están en
 
 [MIT](LICENSE).
 
-Proyecto personal, sin relación con DIGI. "DIGI" y los nombres de canales son
-marcas de sus titulares.
+Proyecto personal, sin relación con DIGI ni con ningún operador. Los nombres
+de operadores y canales son marcas de sus titulares.

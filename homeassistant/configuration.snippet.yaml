@@ -35,50 +35,50 @@ emulated_hue:
   entities:
 
     # ---- channels ----
-    script.digi_la1:
+    script.tv_la1:
       name: "TV La Uno"
       hidden: false
-    script.digi_la2:
+    script.tv_la2:
       name: "TV La Dos"
       hidden: false
-    script.digi_antena3:
+    script.tv_antena3:
       name: "TV Antena Tres"
       hidden: false
-    script.digi_cuatro:
+    script.tv_cuatro:
       name: "TV Cuatro"
       hidden: false
-    script.digi_telecinco:
+    script.tv_telecinco:
       name: "TV Telecinco"
       hidden: false
-    script.digi_lasexta:
+    script.tv_lasexta:
       name: "TV La Sexta"
       hidden: false
 
     # ---- navigation ----
-    script.digi_siguiente:
+    script.tv_siguiente:
       name: "TV Canal Siguiente"
       hidden: false
-    script.digi_anterior:
+    script.tv_anterior:
       name: "TV Canal Anterior"
       hidden: false
-    script.digi_volumen_mas:
+    script.tv_volumen_mas:
       name: "TV Subir Volumen"
       hidden: false
-    script.digi_volumen_menos:
+    script.tv_volumen_menos:
       name: "TV Bajar Volumen"
       hidden: false
-    script.digi_silencio:
+    script.tv_silencio:
       name: "TV Silencio"
       hidden: false
-    script.digi_atras:
+    script.tv_atras:
       name: "TV Atras"
       hidden: false
-    script.digi_guia:
+    script.tv_guia:
       name: "TV Guia"
       hidden: false
-    script.digi_inicio:
+    script.tv_inicio:
       name: "TV Inicio"
       hidden: false
 
-    # Deliberately NOT exposed: script.digi_send_key and script.digi_tune.
-    # Both take required parameters and are meaningless as Alexa devices.
+    # Deliberadamente NO expuestos: script.tv_send_key y script.tv_canal.
+    # Ambos exigen parametros y no tienen sentido como dispositivo suelto.
